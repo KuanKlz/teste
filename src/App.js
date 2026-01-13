@@ -1,55 +1,41 @@
-import React, { useMemo, useState } from "react";
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
-import Layout from "./Layout";
-import Dashboard from "./Pages/Dashboard";
-import Appointments from "./Pages/Appointments";
-import Barbers from "./Pages/Barbers";
-import Services from "./Pages/Services";
-import Reports from "./Pages/Reports";
 import Login from "./Pages/Login";
+import Dashboard from "./Pages/Dashboard";
 
-import { getAuth, logout } from "./auth";
+const queryClient = new QueryClient();
 
-function Protected({ authed, children }) {
-  if (!authed) return <Navigate to="/login" replace />;
-  return children;
+function PrivateRoute({ children }) {
+  const user = localStorage.getItem("auth_user");
+  return user ? children : <Navigate to="/login" />;
 }
 
 export default function App() {
-  const [session, setSession] = useState(() => getAuth());
-  const queryClient = useMemo(() => new QueryClient(), []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          <Route path="/login" element={<Login />} />
+
           <Route
-            path="/login"
-            element={<Login onLogged={(s) => setSession(s)} />}
+            path="/"
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            }
           />
 
           <Route
+            path="/dashboard"
             element={
-              <Protected authed={!!session}>
-                <Layout
-                  onLogout={() => {
-                    logout();
-                    setSession(null);
-                  }}
-                />
-              </Protected>
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
             }
-          >
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/appointments" element={<Appointments />} />
-            <Route path="/barbers" element={<Barbers />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/reports" element={<Reports />} />
-          </Route>
-
-          <Route path="*" element={<Navigate to="/" replace />} />
+          />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
