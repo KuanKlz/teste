@@ -1,65 +1,50 @@
 import React, { useState } from "react";
-import { login } from "../auth";
+import { useNavigate } from "react-router-dom";
 
-export default function Login({ onLogged }) {
+export default function Login() {
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("admin");
   const [error, setError] = useState("");
 
-  import { useNavigate } from "react-router-dom";
+  const navigate = useNavigate();
 
-const navigate = useNavigate();
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-const handleSubmit = (e) => {
-  e.preventDefault();
+    if (username === "admin" && password === "admin") {
+      localStorage.setItem(
+        "auth_user",
+        JSON.stringify({ username: "admin", role: "admin" })
+      );
 
-  if (username === "admin" && password === "admin") {
-    localStorage.setItem(
-      "auth_user",
-      JSON.stringify({ username: "admin", role: "admin" })
-    );
+      navigate("/dashboard");
+      return;
+    }
 
-    navigate("/dashboard"); // 🔥 aqui está a chave
-    return;
-  }
-
-  alert("Usuário ou senha inválidos");
-};
+    setError("Usuário ou senha inválidos");
+  };
 
   return (
     <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 18 }}>
-      <div className="panel" style={{ width: "min(520px, 100%)" }}>
-        <div className="panelPad">
-          <h1 className="title" style={{ marginBottom: 6 }}>Entrar</h1>
-          <p className="subtitle">Use <b>admin</b> / <b>admin</b> (demo). Depois a gente troca por login real.</p>
+      <form onSubmit={handleSubmit} style={{ width: "min(520px, 100%)" }}>
+        <h1 style={{ marginBottom: 6 }}>Entrar</h1>
 
-          <div style={{ marginTop: 14 }}>
-            <label className="label">Usuário</label>
-            <input className="input" value={username} onChange={(e) => setUsername(e.target.value)} />
-          </div>
+        {error ? <p style={{ color: "tomato" }}>{error}</p> : null}
 
-          <div style={{ marginTop: 10 }}>
-            <label className="label">Senha</label>
-            <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
-
-          {error ? <div style={{ marginTop: 10, color: "rgba(255,107,107,0.95)", fontSize: 13 }}>{error}</div> : null}
-
-          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}>
-            <button
-              className="btn btnPrimary"
-              onClick={() => {
-                const s = login(username, password);
-                if (!s) return setError("Usuário ou senha inválidos.");
-                setError("");
-                onLogged?.(s);
-              }}
-            >
-              Entrar
-            </button>
-          </div>
+        <div style={{ marginTop: 14 }}>
+          <label>Usuário</label>
+          <input value={username} onChange={(e) => setUsername(e.target.value)} />
         </div>
-      </div>
+
+        <div style={{ marginTop: 10 }}>
+          <label>Senha</label>
+          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </div>
+
+        <button style={{ marginTop: 14 }} type="submit">
+          Entrar
+        </button>
+      </form>
     </div>
   );
 }
