@@ -9,7 +9,7 @@ const queryClient = new QueryClient();
 
 function PrivateRoute({ children }) {
   const user = localStorage.getItem("auth_user");
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/login" replace />;
 }
 
 export default function App() {
@@ -36,6 +36,8 @@ export default function App() {
               </PrivateRoute>
             }
           />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
