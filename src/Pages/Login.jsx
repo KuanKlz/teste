@@ -6,6 +6,26 @@ export default function Login({ onLogged }) {
   const [password, setPassword] = useState("admin");
   const [error, setError] = useState("");
 
+  import { useNavigate } from "react-router-dom";
+
+const navigate = useNavigate();
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+
+  if (username === "admin" && password === "admin") {
+    localStorage.setItem(
+      "auth_user",
+      JSON.stringify({ username: "admin", role: "admin" })
+    );
+
+    navigate("/dashboard"); // 🔥 aqui está a chave
+    return;
+  }
+
+  alert("Usuário ou senha inválidos");
+};
+
   return (
     <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", padding: 18 }}>
       <div className="panel" style={{ width: "min(520px, 100%)" }}>
